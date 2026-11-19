@@ -22,9 +22,13 @@ show "1. a and b have each built:"
 date +%s > image/marker.txt; settle
 show "2. image/marker.txt changed:"
 
-# The resource that reused the new image still holds its own older build result.
-stale=a
-[ "$(record a)" = "$(imagemap)" ] && stale=b
+# One resource built the new image in step 2 and the other reused it. The
+# builder's record matches the ImageMap; the other resource's record is stale.
+if [ "$(record a)" = "$(imagemap)" ]; then
+  stale=b
+else
+  stale=a
+fi
 tilt patch dockerimage "$stale:repro-image" --type merge \
   -p "{\"metadata\":{\"annotations\":{\"poke\":\"$(date +%s)\"}}}" >/dev/null
 sleep 2
