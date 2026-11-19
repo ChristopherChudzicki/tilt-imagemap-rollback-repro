@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: NAME
+  name: b
 spec:
   selector:
-    matchLabels: {app: NAME}
+    matchLabels: {app: b}
   template:
     metadata:
-      labels: {app: NAME}
+      labels: {app: b}
     spec:
       containers:
         - name: main

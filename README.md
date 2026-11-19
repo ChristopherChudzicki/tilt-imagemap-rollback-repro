@@ -20,19 +20,19 @@ Output from one run (the columns are image tags):
 
 ```
 1. a and b have each built:        imagemap=tilt-17b4c1305ae394d8  a=tilt-17b4c1305ae394d8  b=tilt-17b4c1305ae394d8
-2. image/marker.txt changed:       imagemap=tilt-d334d26ed591eb5c  a=tilt-d334d26ed591eb5c  b=tilt-d334d26ed591eb5c
-3. b's DockerImage touched:        imagemap=tilt-17b4c1305ae394d8  a=tilt-d334d26ed591eb5c  b=tilt-d334d26ed591eb5c
-4. deploy.yaml touched:            imagemap=tilt-17b4c1305ae394d8  a=tilt-17b4c1305ae394d8  b=tilt-17b4c1305ae394d8
+2. image/marker.txt changed:       imagemap=tilt-b1a81d995dbea991  a=tilt-b1a81d995dbea991  b=tilt-b1a81d995dbea991
+3. b's DockerImage touched:        imagemap=tilt-17b4c1305ae394d8  a=tilt-b1a81d995dbea991  b=tilt-b1a81d995dbea991
+4. a.yaml and b.yaml touched:      imagemap=tilt-17b4c1305ae394d8  a=tilt-17b4c1305ae394d8  b=tilt-17b4c1305ae394d8
 ```
 
 Nothing is built after step 2, yet by step 4 both Deployments are back on the image from step 1. Tilt's log for step 4 names the new image and passes the old one in `$TILT_IMAGE_0`:
 
 ```
-a │ 1 File Changed: [deploy.yaml]
+a │ 1 File Changed: [a.yaml]
 a │ STEP 1/2 — Loading cached images
-a │      - localhost:5001/repro-image:tilt-d334d26ed591eb5c
+a │      - localhost:5001/repro-image:tilt-b1a81d995dbea991
 a │ STEP 2/2 — Deploying
-a │      Running cmd: sed "s|NAME|a|g; s|IMAGE|$TILT_IMAGE_0|" deploy.yaml | kubectl apply -o yaml -f -
+a │      Running cmd: sed "s|IMAGE|$TILT_IMAGE_0|" a.yaml | kubectl apply -f - -o yaml
 ```
 
 ## What `repro.sh` does
@@ -40,7 +40,7 @@ a │      Running cmd: sed "s|NAME|a|g; s|IMAGE|$TILT_IMAGE_0|" deploy.yaml | k
 1. `tilt trigger a`, then `tilt trigger b`, so each resource has built the image once and holds a build result of its own.
 2. Changes `image/marker.txt`. One resource builds the new image and the other reuses it.
 3. Adds an annotation to the reusing resource's `DockerImage` object with `tilt patch`, which makes Tilt reconcile that object. The `ImageMap` now points at the older image.
-4. Touches `deploy.yaml`, a `deps` file of both resources. Both apply commands run again, without a build, and get the older image.
+4. Touches `a.yaml` and `b.yaml`, each resource's `deps` file. Both apply commands run again, without a build, and get the older image.
 
 ## Why it happens
 

@@ -30,5 +30,5 @@ tilt patch dockerimage "$stale:repro-image" --type merge \
 sleep 2
 show "3. $stale's DockerImage touched:"
 
-touch deploy.yaml; settle
-show "4. deploy.yaml touched:"
+touch a.yaml b.yaml; settle
+show "4. a.yaml and b.yaml touched:"
